@@ -127,11 +127,12 @@ function draw_beastie(obj)
     end
   end
 
-  if obj.slot+1 != current_beastie then
+  if obj != current_beastie then
     pal{6,6,6,6,6,6,6,6,6,6,6,6,6,6,6}
   else
     pal{10,10,10,10,10,10,10,10,10,10,10,10,10,10,10}
   end
+
   spr(obj.slot%8*2, obj.x, obj.y, 2, 2, flip, false)
   pal()
 end

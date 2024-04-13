@@ -1,5 +1,12 @@
+cartdata("popcorn_beasties")
+
 -- this is the lua source
 function _init()
+  music(0)
+  poke(0x5f5c, 255) -- set btn initial delay before repeating. 255 means never repeat.
+  poke(0x5f5d, 1) -- set btn repeating delay. (this doesn't need to be set because of 255 above)
+
+
   playfield_size = 80
   playfield = {
     x = 127 - playfield_size,
@@ -38,6 +45,10 @@ function _update60()
   for b in all(beasties_to_delete) do
     beasties_slots[b.slot] = false
     del(beasties, b)
+
+    if b == current_beastie then
+      next_beastie()
+    end
   end
 
   update_bar_state()
@@ -111,14 +122,34 @@ function _update60()
 
   -- change beastie
   if btnp(4) and #beasties > 0 then -- button_o (z)
-    local cbi = 0
+    next_beastie()
+  end
+
+  if g_total > dget(0) then
+    dset(0, g_total)
+  end
+  if #beasties == 0 then
+    g_total = 0
+    g_add_amount = 15
+  end
+end
+
+function next_beastie()
+  if #beasties > 0 then
+    local cbi = -1
     for i, b in ipairs(beasties) do
       if b == current_beastie then
         cbi = i
       end
     end
 
-    current_beastie = current_beastie[cbi % #beasties+1]
+    if cbi < 0 then
+      current_beastie = beasties[1]
+    else
+      current_beastie = beasties[cbi % #beasties+1]
+    end
+  else
+    current_beastie = nil
   end
 end
 
@@ -135,12 +166,13 @@ function _draw()
   draw_bar(1, 122, bar_max_fill + 2, 6)
 
   for i, beastie in ipairs(beasties) do
-    if i != current_beastie then
+    if beastie != current_beastie then
       draw_beastie(beastie)
     end
   end
-  if #beasties > 0 then
-    draw_beastie(beasties[current_beastie])
+
+  if #beasties > 0 and current_beastie then
+    draw_beastie(current_beastie)
   end
 
   -- popcorn machine
@@ -150,7 +182,7 @@ function _draw()
   print("bEASTIES:", 1, yoff, 12)
   for i, b in ipairs(beasties) do
     local col = 0
-    if i == current_beastie then
+    if b == current_beastie then
       col = 10
     else
       col = 6
@@ -160,36 +192,61 @@ function _draw()
     pset(1, yoff+i*7+2-1, col)
     print(b.name, 4, yoff+i*7, col)
   end
+
+  local hs_str = "hS: "..dget(0)
+  print(hs_str, 32+16-1-#hs_str*4+80+2, 20-6+20+8-2+1, 6)
+  print("sCORE: "..g_total, 32+16-1, 20-6+20+8-2+1, 6)
+  if #beasties == 0 then
+    print("pop with ❎",    65,  80, 6)
+    print("switch with 🅾️",     65-1*4,  80+7, 6)
+    print("move with ⬆️⬇️⬅️➡️",    65-3*4, 80+14, 6)
+  end
 end
 
+g_bar_cooldown = 0
+g_add_amount = 15
 function update_bar_state()
+  if g_bar_cooldown > 0 then
+    g_bar_cooldown = max(0, g_bar_cooldown-1)
+    if g_bar_cooldown == 0 then
+      bar_state.filled = 0
+    else
+      return
+    end
+  end
+
   if btnp(5) then
-    bar_state.filled = min(bar_state.filled + 5, bar_max_fill)
+    bar_state.filled = mid(0, bar_max_fill, bar_state.filled + g_add_amount)
     bar_state.frames_till_decay = bar_decay_frames
-  end
-
-  bar_state.frames_till_decay -= 1
-  if bar_state.frames_till_decay <= 0 then
-    bar_state.filled -= 1
-    bar_state.frames_till_decay = bar_decay_frames
-  end
-
-  if bar_state.filled <= 0 then
-    bar_state.filled = 0
+  else
+    bar_state.frames_till_decay -= 1
+    if bar_state.frames_till_decay <= 0 then
+      bar_state.filled = mid(0, bar_max_fill, bar_state.filled - 1)
+      bar_state.frames_till_decay = bar_decay_frames
+    end
   end
 
   if bar_state.filled >= bar_max_fill then
-    bar_state.filled = 0
+    g_add_amount = 3+flr(rnd(42-min(40, g_total*2)))
+    g_bar_cooldown = 30
     new_beastie()
   end
 end
 
+g_total=0
 function new_beastie()
   for s, v in pairs(beasties_slots) do
-    if v then
-      add(s, gen_beastie(#beasties, flr(rnd()*1024), playfield.x+playfield_size/2-8, playfield.y+playfield_size/2-8))
+    if not v then
+      g_total = min(255, g_total+1)
+
+      add(beasties, gen_beastie(s, flr(rnd()*1024), playfield.x+playfield_size/2-8, playfield.y+playfield_size/2-8))
+      beasties_slots[s] = true
       break
     end
+  end
+
+  if not current_beastie then
+    next_beastie()
   end
 end
 
@@ -199,7 +256,7 @@ function draw_bar(x, y, w, h)
 
   -- bar fill
   bar_fill = (w - 2) * (bar_state.filled / bar_max_fill)
-  if bar_fill > 0 then
-    rectfill(x + 1, y + 1, x + bar_fill, y + h - 2 , 8)
+  if bar_fill > 1 then
+    rectfill(x + 1, y + 1, x + bar_fill, y + h - 2 , g_bar_cooldown > 0 and 2 or 3)
   end
 end
