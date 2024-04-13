@@ -68,22 +68,22 @@ function _update60()
   if btn(0) then -- left
     beasties[current_beastie].ax = 0
     beasties[current_beastie].dx = -1
-    beasties[current_beastie].x -= 1
+    beasties[current_beastie].x -= 0.4
   end
   if btn(1) then -- right
     beasties[current_beastie].ax = 0
     beasties[current_beastie].dx = 1
-    beasties[current_beastie].x += 1
+    beasties[current_beastie].x += 0.4
   end
   if btn(2) then -- up
     beasties[current_beastie].ay = 0
     beasties[current_beastie].dy = -1
-    beasties[current_beastie].y -= 1
+    beasties[current_beastie].y -= 0.4
   end
   if btn(3) then -- down
     beasties[current_beastie].ay = 0
     beasties[current_beastie].dy = 1
-    beasties[current_beastie].y += 1
+    beasties[current_beastie].y += 0.4
   end
 
   -- keep beasties in their cage
@@ -114,13 +114,10 @@ end
 function _draw()
   cls()
 
-  -- TODO Remove this - bottom left quadrant
-  --rectfill(0,64,63,127,3)
-  -- TODO Remove this - bottom right quadrant
-  rect(playfield.x, playfield.y, 127, 127, 6)
+  -- display playfield
+  rect(playfield.x, playfield.x, 127, 127, 6)
 
   -- title
-  --print(color)
   print("pOPCORN bEASTIES",        (128-(17*4))/2, 0, color)
   print("A tRIJAM 265 sUBMISSION", (128-(23*4))/2, 7, 9)
 
@@ -141,16 +138,17 @@ function _draw()
   local yoff = 59
   print("bEASTIES:", 1, yoff, 12)
   for i, b in ipairs(beasties) do
-    local col = 6
+    local col = 0
+    if i == current_beastie then
+      col = 10
+    else
+      col = 6
+    end
     pset(1, yoff+i*7+2, col)
     pset(2, yoff+i*7+2, col)
     pset(1, yoff+i*7+2-1, col)
     print(b.name, 4, yoff+i*7, col)
   end
-
-  -- TODO remove
-  print("created=" .. beasties_created, 0, 6 * 11, 6)
-  print("current=" .. current_beastie, 0, 6 * 12, 6)
 end
 
 function update_bar_state()
