@@ -13,7 +13,12 @@ function _init()
     frames_till_decay = 0
   }
 
-  current_beastie = 1
+  beasties_slots = {
+    [0]=false, false, false, false,
+    false,     false, false, false,
+  }
+
+  current_beastie = nil
   beasties = {}
 
   -- temp vars
@@ -31,13 +36,14 @@ function _update60()
   end
 
   for b in all(beasties_to_delete) do
+    beasties_slots[b.slot] = false
     del(beasties, b)
   end
 
   update_bar_state()
 
   for i, beastie in ipairs(beasties) do
-    if i != current_beastie then
+    if beastie != current_beastie then
       if t() % .25 == 0 then
         local rnd_dir = rnd()
         local rnd_speed = flr(rnd()*5)
@@ -48,7 +54,7 @@ function _update60()
   end
 
   for i, beastie in ipairs(beasties) do
-    if i != current_beastie then
+    if beastie != current_beastie then
       beastie.dx += beastie.ax
       beastie.dy += beastie.ay
       beastie.dx = sgn(beastie.dx)*min(abs(beastie.dx), .25)
@@ -57,33 +63,34 @@ function _update60()
   end
 
   for i, beastie in ipairs(beasties) do
-    if i != current_beastie then
+    if beastie != current_beastie then
       beastie.x += beastie.dx
       beastie.y += beastie.dy
     end
   end
 
-
   -- player movement
-  if btn(0) then -- left
-    beasties[current_beastie].ax = 0
-    beasties[current_beastie].dx = -1
-    beasties[current_beastie].x -= 1
-  end
-  if btn(1) then -- right
-    beasties[current_beastie].ax = 0
-    beasties[current_beastie].dx = 1
-    beasties[current_beastie].x += 1
-  end
-  if btn(2) then -- up
-    beasties[current_beastie].ay = 0
-    beasties[current_beastie].dy = -1
-    beasties[current_beastie].y -= 1
-  end
-  if btn(3) then -- down
-    beasties[current_beastie].ay = 0
-    beasties[current_beastie].dy = 1
-    beasties[current_beastie].y += 1
+  if current_beastie then
+    if btn(0) then -- left
+      current_beastie.ax = 0
+      current_beastie.dx = -1
+      current_beastie.x -= 1
+    end
+    if btn(1) then -- right
+      current_beastie.ax = 0
+      current_beastie.dx = 1
+      current_beastie.x += 1
+    end
+    if btn(2) then -- up
+      current_beastie.ay = 0
+      current_beastie.dy = -1
+      current_beastie.y -= 1
+    end
+    if btn(3) then -- down
+      current_beastie.ay = 0
+      current_beastie.dy = 1
+      current_beastie.y += 1
+    end
   end
 
   -- keep beasties in their cage
@@ -103,11 +110,15 @@ function _update60()
   end
 
   -- change beastie
-  if btnp(4) then -- button_o (z)
-    current_beastie += 1
-    if current_beastie > 8 then
-      current_beastie = 1
+  if btnp(4) and #beasties > 0 then -- button_o (z)
+    local cbi = 0
+    for i, b in ipairs(beasties) do
+      if b == current_beastie then
+        cbi = i
+      end
     end
+
+    current_beastie = current_beastie[cbi % #beasties+1]
   end
 end
 
@@ -176,8 +187,11 @@ function update_bar_state()
 end
 
 function new_beastie()
-  if #beasties < 8 then
-    add(beasties, gen_beastie(#beasties, flr(rnd()*1024), playfield.x+playfield_size/2-8, playfield.y+playfield_size/2-8))
+  for s, v in pairs(beasties_slots) do
+    if v then
+      add(s, gen_beastie(#beasties, flr(rnd()*1024), playfield.x+playfield_size/2-8, playfield.y+playfield_size/2-8))
+      break
+    end
   end
 end
 
