@@ -91,14 +91,18 @@ function gen_beastie(slot, beastie_num, start_x, start_y)
       break
     end
   end
-  srand(t())
 
-  return {
+  -- using same srand as beastie
+  local b = {
     name=ri(name_part1)..ri(name_part2)..ri(name_part3),
     x=start_x,  y=start_y,
     dx=0, dy=0,
     ax=0, ay=0,
   }
+
+  srand(t())
+
+  return b
 end
 
 function ri(l)

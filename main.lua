@@ -92,7 +92,8 @@ function _draw()
 
   -- title
   --print(color)
-  print("popcorn beasties", (128-(17*4))/2, 0, color)
+  print("pOPCORN bEASTIES",        (128-(17*4))/2, 0, color)
+  print("A tRIJAM 265 sUBMISSION", (128-(23*4))/2, 7, 9)
 
   draw_bar(1, 122, bar_max_fill + 2, 6)
 
@@ -101,7 +102,17 @@ function _draw()
   end
 
   -- popcorn machine
-  spr(128, 20, 0, 4,8)
+  spr(128, 20, 0-8+3, 4,8)
+
+  local yoff = 59
+  print("bEASTIES:", 1, yoff, 12)
+  for i, b in ipairs(beasties) do
+    local col = 6
+    pset(1, yoff+i*7+2, col)
+    pset(2, yoff+i*7+2, col)
+    pset(1, yoff+i*7+2-1, col)
+    print(b.name, 4, yoff+i*7, col)
+  end
 
   -- TODO remove
   print(beasties_created, 0, 0, 6)
