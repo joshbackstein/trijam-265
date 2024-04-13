@@ -28,6 +28,10 @@ function setpix_raw(slot, x, y, col)
   end
 end
 
+name_part1 = {"pIX", "pUF", "fIZ", "zIM", "kEX", "qUO", "zEP", "jIX", "rEX", "dAX", "lIX", "vOX", "pAZ", "jAZ", "mOX", "nEX", "bUZ", "cAZ", "kLO", "vEX", "wIX", "zYX", "fUX", "qIX", "rOZ", "sUZ", "tIX", "uXO", "vIZ", "wOZ", "xIX", "yOK", "zUZ", "aXO", "bEZ", "cOZ", "dEZ", "eZO", "fEZ", "gIZ", "hUZ", "iZO", "kEZ", "lOZ", "mOZ", "nIX", "oXO", "pOZ", "rIZ", "sYZ"}
+name_part2 = {"", "IBU", "OBI", "ULA", "EFA", "IJI", "OFO", "OU", "UE", "UO", "A", "E", "I", "O", "U", "AE", "AI", "AO", "AGO", "ENE", "IE", "ODO", "UZU", "AJE", "EMI", "IRI", "OLU", "UFI", "AKA", "ENA"}
+name_part3 = {"", "AX", "bO", "CY", "dI", "eX", "fO", "gY", "HO", "iO", "jO", "kY", "lI", "mO", "nY", "oY", "pO", "qU", "rI", "sI", "tO", "uX", "vI", "wO", "xY", "yO", "zA", "bI", "cU", "dU", "EV", "FI", "GU", "HI", "JI", "KO", "LU", "MI", "NI", "OU", "PI", "QI", "RO", "SU", "TI", "UY", "VU", "WI", "XI", "YU", "zE"}
+
 function gen_beastie(slot, beastie_num, start_x, start_y)
   srand(beastie_num) -- use a custom starting position for the beasties
 
@@ -90,11 +94,15 @@ function gen_beastie(slot, beastie_num, start_x, start_y)
   srand(t())
 
   return {
-    name="jeff",
+    name=ri(name_part1)..ri(name_part2)..ri(name_part3),
     x=start_x,  y=start_y,
     dx=0, dy=0,
     ax=0, ay=0,
   }
+end
+
+function ri(l)
+  return l[flr(rnd()*#l)+1]
 end
 
 flip()
