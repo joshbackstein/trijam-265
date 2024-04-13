@@ -15,10 +15,6 @@ function _init()
 
   current_beastie = 1
   beasties = {}
-  local start_num = rnd()*1024\1
-  for i=0, 7 do
-    add(beasties, gen_beastie(i, start_num+i, i*20, 9))
-  end
 
   -- temp vars
   color = 10
@@ -26,6 +22,18 @@ function _init()
 end
 
 function _update60()
+  local beasties_to_delete = {}
+  for b in all(beasties) do
+    b.lifetime -= 1
+    if b.lifetime <= 0 then
+      add(beasties_to_delete, b)
+    end
+  end
+
+  for b in all(beasties_to_delete) do
+    del(beasties, b)
+  end
+
   update_bar_state()
 
   for i, beastie in ipairs(beasties) do
@@ -78,7 +86,6 @@ function _update60()
     beasties[current_beastie].y += 1
   end
 
-
   -- keep beasties in their cage
   for beastie in all(beasties) do
     if beastie.x < playfield.x + 1 then
@@ -110,7 +117,7 @@ function _draw()
   -- TODO Remove this - bottom left quadrant
   --rectfill(0,64,63,127,3)
   -- TODO Remove this - bottom right quadrant
-  rect(playfield.x, playfield.x, 127, 127, 6)
+  rect(playfield.x, playfield.y, 127, 127, 6)
 
   -- title
   --print(color)
@@ -121,10 +128,12 @@ function _draw()
 
   for i, beastie in ipairs(beasties) do
     if i != current_beastie then
-      draw_beastie(i-1, beastie)
+      draw_beastie(beastie)
     end
   end
-  draw_beastie(current_beastie - 1, beasties[current_beastie])
+  if #beasties > 0 then
+    draw_beastie(beasties[current_beastie])
+  end
 
   -- popcorn machine
   spr(128, 20, 0-8+3, 4,8)
@@ -153,7 +162,6 @@ function update_bar_state()
   bar_state.frames_till_decay -= 1
   if bar_state.frames_till_decay <= 0 then
     bar_state.filled -= 1
-
     bar_state.frames_till_decay = bar_decay_frames
   end
 
@@ -168,7 +176,9 @@ function update_bar_state()
 end
 
 function new_beastie()
-  beasties_created += 1
+  if #beasties < 8 then
+    add(beasties, gen_beastie(#beasties, flr(rnd()*1024), playfield.x+playfield_size/2-8, playfield.y+playfield_size/2-8))
+  end
 end
 
 function draw_bar(x, y, w, h)

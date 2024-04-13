@@ -96,6 +96,8 @@ function gen_beastie(slot, beastie_num, start_x, start_y)
   local b = {
     name=ri(name_part1)..ri(name_part2)..ri(name_part3),
     x=start_x,  y=start_y,
+    slot=slot,
+    lifetime=60*5+flr(rnd()*60*15),
     dx=0, dy=0,
     ax=0, ay=0,
   }
@@ -116,21 +118,21 @@ flip()
 --   gen_beastie(i, start_num+i)
 -- end
 
-function draw_beastie(slot, obj)
+function draw_beastie(obj)
   pal{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
   local flip = obj.dx > 0
   for xx=-1,1 do
     for yy=-1,1 do
-      spr(slot%8*2, obj.x+xx, obj.y+yy, 2, 2, flip, false)
+      spr(obj.slot%8*2, obj.x+xx, obj.y+yy, 2, 2, flip, false)
     end
   end
 
-  if slot + 1 != current_beastie then
+  if obj.slot+1 != current_beastie then
     pal{6,6,6,6,6,6,6,6,6,6,6,6,6,6,6}
   else
     pal{10,10,10,10,10,10,10,10,10,10,10,10,10,10,10}
   end
-  spr(slot%8*2, obj.x, obj.y, 2, 2, flip, false)
+  spr(obj.slot%8*2, obj.x, obj.y, 2, 2, flip, false)
   pal()
 end
 
