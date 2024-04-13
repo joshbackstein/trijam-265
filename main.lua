@@ -27,8 +27,10 @@ function _update60()
 
   for beastie in all(beasties) do
     if t() % .25 == 0 then
-      beastie.ax = (rnd(3)\1-1)*.05
-      beastie.ay = (rnd(3)\1-1)*.05
+      local rnd_dir = rnd()
+      local rnd_speed = flr(rnd()*5)
+      beastie.ax = cos(rnd_dir)*.01*rnd_speed
+      beastie.ay = sin(rnd_dir)*.01*rnd_speed
     end
   end
 
@@ -79,8 +81,9 @@ function _draw()
   for i, beastie in ipairs(beasties) do
     draw_beastie(i-1, beastie)
   end
-end
 
+  spr(128, 20, 0, 4,8)
+end
 
 function update_bar_state()
   if btnp(5) then

@@ -105,15 +105,17 @@ flip()
 -- end
 
 function draw_beastie(slot, obj)
-  pal{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
-
+  pal{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  local flip = obj.dx > 0
   for xx=-1,1 do
     for yy=-1,1 do
-      spr(slot%8*2, obj.x+xx, obj.y+yy, 2, 2, obj.flipx, false)
+      spr(slot%8*2, obj.x+xx, obj.y+yy, 2, 2, flip, false)
     end
   end
+
+  pal{6,6,6,6,6,6,6,6,6,6,6,6,6,6,6}
+  spr(slot%8*2, obj.x, obj.y, 2, 2, flip, false)
   pal()
-  spr(slot%8*2, obj.x, obj.y, 2, 2)
 end
 
 -- function _draw()
