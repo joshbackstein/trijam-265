@@ -7,7 +7,7 @@ function _init()
   }
 
   bar_max_fill = playfield.x - 4
-  bar_decay_frames = 3
+  bar_decay_frames = 4
   bar_state = {
     filled = 0,
     frames_till_decay = 0
@@ -19,7 +19,9 @@ function _init()
     add(beasties, gen_beastie(i, start_num+i, i*20, 9))
   end
 
+  -- temp vars
   color = 10
+  beasties_created = 0
 end
 
 function _update60()
@@ -46,6 +48,22 @@ function _update60()
     beastie.y += beastie.dy
   end
 
+
+  -- keep beasties in their cage
+  for beastie in all(beasties) do
+    if beastie.x < playfield.x then
+      beastie.x = playfield.x
+    end
+    if beastie.x > 127 - 16 then
+      beastie.x = 127 - 16
+    end
+    if beastie.y < playfield.y then
+      beastie.y = playfield.y
+    end
+    if beastie.y > 127 - 16 then
+      beastie.y = 127 - 16
+    end
+  end
 
   -- change color
   if btn(4) then -- button_o (z)
@@ -82,6 +100,8 @@ function _draw()
     draw_beastie(i-1, beastie)
   end
 
+  -- TODO remove
+  print(beasties_created, 0, 0, 6)
   spr(128, 20, 0, 4,8)
 end
 
@@ -102,7 +122,14 @@ function update_bar_state()
     bar_state.filled = 0
   end
 
-  --bar_state.filled = bar_max_fill
+  if bar_state.filled >= bar_max_fill then
+    bar_state.filled = 0
+    new_beastie()
+  end
+end
+
+function new_beastie()
+  beasties_created += 1
 end
 
 function draw_bar(x, y, w, h)
