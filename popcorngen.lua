@@ -28,7 +28,7 @@ function setpix_raw(slot, x, y, col)
   end
 end
 
-function gen_beastie(slot, beastie_num)
+function gen_beastie(slot, beastie_num, start_x, start_y)
   srand(beastie_num) -- use a custom starting position for the beasties
 
   local cur_pix = 0
@@ -91,7 +91,7 @@ function gen_beastie(slot, beastie_num)
 
   return {
     name="jeff",
-    x=0,  y=0,
+    x=start_x,  y=start_y,
     dx=0, dy=0,
     ax=0, ay=0,
   }
@@ -104,16 +104,16 @@ flip()
 --   gen_beastie(i, start_num+i)
 -- end
 
-function draw_beastie(slot, x, y, flipx)
+function draw_beastie(slot, obj)
   pal{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
 
   for xx=-1,1 do
     for yy=-1,1 do
-      spr(slot%8*2, x+xx, y+yy, 2, 2, flipx, false)
+      spr(slot%8*2, obj.x+xx, obj.y+yy, 2, 2, obj.flipx, false)
     end
   end
   pal()
-  spr(slot%8*2, x, y, 2, 2)
+  spr(slot%8*2, obj.x, obj.y, 2, 2)
 end
 
 -- function _draw()

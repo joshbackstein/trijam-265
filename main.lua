@@ -13,14 +13,37 @@ function _init()
     frames_till_decay = 0
   }
 
-  beasties = {
-  }
+  beasties = {}
+  local start_num = rnd()*1024\1
+  for i=0, 7 do
+    add(beasties, gen_beastie(i, start_num+i, i*20, 9))
+  end
 
   color = 10
 end
 
 function _update60()
   update_bar_state()
+
+  for beastie in all(beasties) do
+    if t() % .25 == 0 then
+      beastie.ax = (rnd(3)\1-1)*.05
+      beastie.ay = (rnd(3)\1-1)*.05
+    end
+  end
+
+  for beastie in all(beasties) do
+    beastie.dx += beastie.ax
+    beastie.dy += beastie.ay
+    beastie.dx = sgn(beastie.dx)*min(abs(beastie.dx), .25)
+    beastie.dy = sgn(beastie.dy)*min(abs(beastie.dy), .25)
+  end
+
+  for beastie in all(beasties) do
+    beastie.x += beastie.dx
+    beastie.y += beastie.dy
+  end
+
 
   -- change color
   if btn(4) then -- button_o (z)
@@ -53,8 +76,9 @@ function _draw()
 
   draw_bar(1, 122, bar_max_fill + 2, 6)
 
-  draw_beastie(1, 20, 30)
-  draw_beastie(2, 65, 70)
+  for i, beastie in ipairs(beasties) do
+    draw_beastie(i-1, beastie)
+  end
 end
 
 
@@ -87,10 +111,4 @@ function draw_bar(x, y, w, h)
   if bar_fill > 0 then
     rectfill(x + 1, y + 1, x + bar_fill, y + h - 2 , 8)
   end
-end
-
-function draw_beastie(beastie_num, x, y)
-  -- sprite size: 16x16
-  rectfill(x, y, x+16, y+16, 12)
-  print(beasties[beastie_num].name, 0, (beastie_num - 1) * 6, 12)
 end
