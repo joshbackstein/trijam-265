@@ -13,6 +13,7 @@ function _init()
     frames_till_decay = 0
   }
 
+  current_beastie = 1
   beasties = {}
   local start_num = rnd()*1024\1
   for i=0, 7 do
@@ -27,25 +28,54 @@ end
 function _update60()
   update_bar_state()
 
-  for beastie in all(beasties) do
-    if t() % .25 == 0 then
-      local rnd_dir = rnd()
-      local rnd_speed = flr(rnd()*5)
-      beastie.ax = cos(rnd_dir)*.01*rnd_speed
-      beastie.ay = sin(rnd_dir)*.01*rnd_speed
+  for i, beastie in ipairs(beasties) do
+    if i != current_beastie then
+      if t() % .25 == 0 then
+        local rnd_dir = rnd()
+        local rnd_speed = flr(rnd()*5)
+        beastie.ax = cos(rnd_dir)*.01*rnd_speed
+        beastie.ay = sin(rnd_dir)*.01*rnd_speed
+      end
     end
   end
 
-  for beastie in all(beasties) do
-    beastie.dx += beastie.ax
-    beastie.dy += beastie.ay
-    beastie.dx = sgn(beastie.dx)*min(abs(beastie.dx), .25)
-    beastie.dy = sgn(beastie.dy)*min(abs(beastie.dy), .25)
+  for i, beastie in ipairs(beasties) do
+    if i != current_beastie then
+      beastie.dx += beastie.ax
+      beastie.dy += beastie.ay
+      beastie.dx = sgn(beastie.dx)*min(abs(beastie.dx), .25)
+      beastie.dy = sgn(beastie.dy)*min(abs(beastie.dy), .25)
+    end
   end
 
-  for beastie in all(beasties) do
-    beastie.x += beastie.dx
-    beastie.y += beastie.dy
+  for i, beastie in ipairs(beasties) do
+    if i != current_beastie then
+      beastie.x += beastie.dx
+      beastie.y += beastie.dy
+    end
+  end
+
+
+  -- player movement
+  if btn(0) then -- left
+    beasties[current_beastie].ax = 0
+    beasties[current_beastie].dx = -1
+    beasties[current_beastie].x -= 1
+  end
+  if btn(1) then -- right
+    beasties[current_beastie].ax = 0
+    beasties[current_beastie].dx = 1
+    beasties[current_beastie].x += 1
+  end
+  if btn(2) then -- up
+    beasties[current_beastie].ay = 0
+    beasties[current_beastie].dy = -1
+    beasties[current_beastie].y -= 1
+  end
+  if btn(3) then -- down
+    beasties[current_beastie].ay = 0
+    beasties[current_beastie].dy = 1
+    beasties[current_beastie].y += 1
   end
 
 
@@ -65,19 +95,11 @@ function _update60()
     end
   end
 
-  -- change color
-  if btn(4) then -- button_o (z)
-    if btnp(2) then -- up
-      color += 1
-      if color > 15 then
-        color = 1 -- can't see black
-      end
-    end
-    if btnp(3) then -- down
-      color -= 1
-      if color < 1 then -- can't see black
-        color = 15
-      end
+  -- change beastie
+  if btnp(4) then -- button_o (z)
+    current_beastie += 1
+    if current_beastie > 8 then
+      current_beastie = 1
     end
   end
 end
@@ -98,8 +120,11 @@ function _draw()
   draw_bar(1, 122, bar_max_fill + 2, 6)
 
   for i, beastie in ipairs(beasties) do
-    draw_beastie(i-1, beastie)
+    if i != current_beastie then
+      draw_beastie(i-1, beastie)
+    end
   end
+  draw_beastie(current_beastie - 1, beasties[current_beastie])
 
   -- popcorn machine
   spr(128, 20, 0-8+3, 4,8)
@@ -115,7 +140,8 @@ function _draw()
   end
 
   -- TODO remove
-  print(beasties_created, 0, 0, 6)
+  print("created=" .. beasties_created, 0, 6 * 11, 6)
+  print("current=" .. current_beastie, 0, 6 * 12, 6)
 end
 
 function update_bar_state()
