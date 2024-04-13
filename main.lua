@@ -51,14 +51,14 @@ function _update60()
 
   -- keep beasties in their cage
   for beastie in all(beasties) do
-    if beastie.x < playfield.x then
-      beastie.x = playfield.x
+    if beastie.x < playfield.x + 1 then
+      beastie.x = playfield.x + 1
     end
     if beastie.x > 127 - 16 then
       beastie.x = 127 - 16
     end
-    if beastie.y < playfield.y then
-      beastie.y = playfield.y
+    if beastie.y < playfield.y + 1 then
+      beastie.y = playfield.y + 1
     end
     if beastie.y > 127 - 16 then
       beastie.y = 127 - 16
@@ -100,9 +100,11 @@ function _draw()
     draw_beastie(i-1, beastie)
   end
 
+  -- popcorn machine
+  spr(128, 20, 0, 4,8)
+
   -- TODO remove
   print(beasties_created, 0, 0, 6)
-  spr(128, 20, 0, 4,8)
 end
 
 function update_bar_state()
