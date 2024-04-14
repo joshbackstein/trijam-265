@@ -33,6 +33,10 @@ name_part2 = {"", "IBU", "OBI", "ULA", "EFA", "IJI", "OFO", "OU", "UE", "UO", "A
 name_part3 = {"", "AX", "bO", "CY", "dI", "eX", "fO", "gY", "HO", "iO", "jO", "kY", "lI", "mO", "nY", "oY", "pO", "qU", "rI", "sI", "tO", "uX", "vI", "wO", "xY", "yO", "zA", "bI", "cU", "dU", "EV", "FI", "GU", "HI", "JI", "KO", "LU", "MI", "NI", "OU", "PI", "QI", "RO", "SU", "TI", "UY", "VU", "WI", "XI", "YU", "zE"}
 
 function gen_beastie(slot, beastie_num, start_x, start_y)
+  for i=0,15 do -- clear the sprite before starting to draw
+    memset(64*i+slot*8, 0, 8)
+  end
+
   srand(beastie_num) -- use a custom starting position for the beasties
 
   local cur_pix = 0
